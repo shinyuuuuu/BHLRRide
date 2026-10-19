@@ -1,157 +1,63 @@
+import { Navigate, Route, Routes } from 'react-router-dom'
+import Browsepage from './Browsepage.jsx'
+import AccountPage from './Accountpage.jsx'
+import LoginPage from './Loginpage.jsx'
+import ProtectedRoute from './auth/ProtectedRoute.jsx'
+import Vehiclepage from './vehiclepage.jsx'
+import VendorPage from './Vendorpage.jsx'
+import AdminPage from './Adminpage.jsx'
+import VendorSignup from './Vendorsignup.jsx'
+import VendorHelp from './Vendorhelp.jsx'
 
-import './App.css'
+
 
 function App() {
   return (
-    <div className="app">
-      {/* Navigation */}
-      <header className="navbar">
-        <a className="brand" href="#home">
-          <span className="brand-mark">B</span>
-          <span>
-            BHLR<span className="brand-gold">Ride</span>
-          </span>
-        </a>
+    <Routes>
+      <Route path="/" element={<Navigate to="/browse" replace />} />
+      <Route path="/browse" element={<Browsepage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/vehicles/:id" element={<Vehiclepage />} />
+      <Route path="/become-a-vendor" element={<VendorSignup />} />
 
-        <nav className="nav-links">
-          <a className="active" href="#vehicles">
-            Browse fleet
-            </a>
-        </nav>
+      <Route
+        path="/account"
+        element={
+          <ProtectedRoute roles={['customer']}>
+            <AccountPage />
+          </ProtectedRoute>
+        }
+      />
 
-        <div className="nav-actions">
-          <button 
-          className="icon-button"
-          aria-label="Notifications"
-          title="Notifications"
-          >
-            ♧
-          </button>
+      <Route
+        path="/vendor"
+        element={
+          <ProtectedRoute roles={['vendor']}>
+            <VendorPage />
+          </ProtectedRoute>
+        }
+      />
 
-          <details className="account-dropdown">
-            <summary
-              className="account-trigger"
-              aria-label="Open account menu"
-              >
-                <span className="account-avatar">S</span>
-                <span className="account-label">Account</span>
-                <span className="account-caret">▾</span>
-              </summary>
+    <Route
+        path="/vendor/help"
+        element={
+          <ProtectedRoute roles={['vendor']}>
+            <VendorHelp />
+          </ProtectedRoute>
+        }
+      />
 
-              <div className="account-menu">
-                <p className="account-menu-heading">My Account</p>
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute roles={['admin']}>
+            <AdminPage />
+          </ProtectedRoute>
+        }
+      />
 
-                <a href="#bookings" className="account-menu-item">
-                  <span>▣</span> My Bookings</a>
-
-                <a href="#saved" className="account-menu-item">
-                  <span>♡</span> Saved Rides</a>
-
-                <a href="#settings" className="account-menu-item">
-                  <span>⚙</span> Account Settings</a>
-
-                <div className="account-menu-divider"></div>
-
-                <button 
-                  className="account-menu-item logout-button"
-                  type="button"
-                >
-                  <span>↪</span> Log Out
-                </button>
-              </div>
-          </details>
-        </div>
-      </header>
-
-      <main id="home">
-        {/* Hero */}
-        <section className="hero">
-          <div className="hero-overlay" />
-          <div className="hero-content">
-            <p className="hero-eyebrow">
-              YOUR JOURNEY STARTS HERE
-            </p>
-
-            <h1>
-              Great roads.
-              <br />
-              <span>Your next ride.</span>
-            </h1>
-
-            <p className="hero-description">
-              Find the right car or motorcycle for your next
-              adventure around Bohol.
-            </p>
-
-            <a className="hero-link" href="#vehicles">
-              Explore the fleet <span>→</span>
-            </a>
-          </div>
-
-          <div className="hero-caption">
-            <span className="caption-line" />
-            MADE FOR THE OPEN ROAD
-          </div>
-        </section>
-
-        {/* Rental Search */}
-        <section className="search-section">
-          <div className="search-box">
-            <div className="search-field">
-              <label htmlFor="location">PICK-UP LOCATION</label>
-              <select id="location" defaultValue="all">
-                <option value="all">Anywhere in Bohol</option>
-                <option value="tagbilaran">Tagbilaran City</option>
-                <option value="panglao">Panglao</option>
-                <option value="loboc">Loboc</option>
-              </select>
-            </div>
-
-            <div className="search-field">
-              <label htmlFor="pickup">PICK-UP DATE</label>
-              <input id="pickup" type="date" />
-            </div>
-
-            <div className="search-field">
-              <label htmlFor="return">RETURN DATE</label>
-              <input id="return" type="date" />
-            </div>
-
-            <button
-              className="search-button"
-              onClick={() =>
-                document.getElementById('vehicles')?.scrollIntoView({
-                  behavior: 'smooth',
-                })
-              }
-            >
-              Search rides <span>→</span>
-            </button>
-          </div>
-        </section>
-
-        {/* Vehicle browsing comes next */}
-        <section className="placeholder-section" id="vehicles">
-          <p className="section-eyebrow">THE COLLECTION</p>
-          <h2>Your next ride awaits.</h2>
-          <p>
-            Our vehicle collection will appear here in the next step.
-          </p>
-        </section>
-      </main>
-
-      <footer className="footer">
-        <a className="brand footer-brand" href="#home" aria-label="BHLRRide home">
-            <img
-              className="brand-logo"
-              src="/BHLRRideLogo - Edited.png"
-              alt="BHLRRide"
-            />
-          </a>
-        <p>Find your ride. Make the journey yours.</p>
-        <span className="footer-copy">© 2026 BHLRRide</span>
-      </footer>
-    </div>
+      <Route path="*" element={<Navigate to="/browse" replace />} />
+    </Routes>
   )
 }
 

@@ -1,26 +1,44 @@
-import { useMemo, useState } from 'react'
-import './BrowsePage.css'
+import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { useAuth } from './auth/auth.js'
+import { useVehicles } from './data/vehiclestore.js'
+import './Browsepage.css'
 
-const vehicles = [
-  { id: 1, name: 'Toyota Vios', kind: 'Car', style: 'Sedan', transmission: 'Automatic', seats: 5, fuel: 'Petrol', rate: 1500, rating: 4.8, branch: 'Tagbilaran City', badge: 'Weekend favourite', emoji: '🚗', available: true },
-  { id: 2, name: 'Toyota Wigo', kind: 'Car', style: 'Hatchback', transmission: 'Manual', seats: 5, fuel: 'Petrol', rate: 1200, rating: 4.6, branch: 'Tagbilaran City', badge: '', emoji: '🚗', available: true },
-  { id: 3, name: 'Toyota Innova', kind: 'Car', style: 'MPV', transmission: 'Manual', seats: 7, fuel: 'Diesel', rate: 2500, rating: 4.7, branch: 'Panglao', badge: 'Family pick', emoji: '🚙', available: true },
-  { id: 4, name: 'Toyota Hiace', kind: 'Car', style: 'Van', transmission: 'Manual', seats: 12, fuel: 'Diesel', rate: 4000, rating: 4.7, branch: 'Tagbilaran City', badge: 'Group tours', emoji: '🚐', available: true },
-  { id: 5, name: 'Honda Click 125', kind: 'Motorcycle', style: 'Scooter', transmission: 'Automatic', seats: 2, fuel: 'Petrol', rate: 600, rating: 4.9, branch: 'Panglao', badge: 'Island essential', emoji: '🛵', available: true },
-  { id: 6, name: 'Yamaha NMAX', kind: 'Motorcycle', style: 'Scooter', transmission: 'Automatic', seats: 2, fuel: 'Petrol', rate: 900, rating: 4.8, branch: 'Tagbilaran City', badge: '', emoji: '🛵', available: true },
-  { id: 7, name: 'Honda XR150L', kind: 'Motorcycle', style: 'Adventure', transmission: 'Manual', seats: 2, fuel: 'Petrol', rate: 800, rating: 4.6, branch: 'Loboc', badge: 'Chocolate Hills runs', emoji: '🏍️', available: true },
-  { id: 8, name: 'Yamaha Mio i 125', kind: 'Motorcycle', style: 'Scooter', transmission: 'Automatic', seats: 2, fuel: 'Petrol', rate: 500, rating: 4.5, branch: 'Loboc', badge: '', emoji: '🛵', available: false },
-]
 
 const peso = (n) => '₱' + n.toLocaleString('en-PH')
 
+const heroSlides = [
+  {
+    image: '/images/roadbohol.jpg',
+    location: 'BOHOL, PHILIPPINES',
+    caption: 'The open road awaits.',
+  },
+  {
+    image: '/images/alonapanglao.jpg',
+    location: 'PANGLAO ISLAND',
+    caption: 'Find your coastal escape.',
+  },
+  {
+    image: '/images/manmadeforest.jpg',
+    location: 'MANMADE FOREST',
+    caption: 'Take the greenery route.',
+  },
+  {
+    image:'/images/chocoroad.jpg',
+    location: 'CHOCOLATE HILLS',
+    caption: 'Experience the beauty of the famous Chocolate Hills.'
+  }
+]
+
 function BrowsePage() {
+  const { user, logout } = useAuth()
+  const { vehicles } = useVehicles()
   const [kind, setKind] = useState('All')
+  const [branch, setBranch] = useState('All')
   const [sort, setSort] = useState('recommended')
   const [maxRate, setMaxRate] = useState(4000)
   const [transmissions, setTransmissions] = useState([])
   const [onlyAvailable, setOnlyAvailable] = useState(true)
-  const [saved, setSaved] = useState([])
   const [days, setDays] = useState(3)
 
   const toggle = (list, setList, value) =>
@@ -30,6 +48,7 @@ function BrowsePage() {
     let list = vehicles.filter(
       (v) =>
         (kind === 'All' || v.kind === kind) &&
+        (branch === 'All' || v.branch === branch) &&
         v.rate <= maxRate &&
         (transmissions.length === 0 || transmissions.includes(v.transmission)) &&
         (!onlyAvailable || v.available),
@@ -38,89 +57,184 @@ function BrowsePage() {
     if (sort === 'high') list = [...list].sort((a, b) => b.rate - a.rate)
     if (sort === 'rating') list = [...list].sort((a, b) => b.rating - a.rating)
     return list
-  }, [kind, sort, maxRate, transmissions, onlyAvailable])
+  }, [vehicles, kind, branch, sort, maxRate, transmissions, onlyAvailable])
 
   const resetAll = () => {
     setKind('All')
+    setBranch('All')
     setMaxRate(4000)
     setTransmissions([])
     setOnlyAvailable(true)
   }
 
+const [heroIndex, setHeroIndex] = useState(0)
+
+    useEffect(() => {
+      const timer = setInterval(() => {
+        setHeroIndex((current) => (current + 1) % heroSlides.length)
+      }, 5000)
+
+      return () => clearInterval(timer)
+    }, [])
+
+
+
   return (
     <div className="bp">
      
-<header className="bp-nav">
-        <a className="bp-brand" href="#home">
-            BHLR<span>Ride</span>
-        </a>
+    <header className="bp-nav">
+       <Link className="bp-brand" to="/browse">
+        <img className="bp-logo" src="/BHLRRideLogo - Edited.png" alt="BHLRRide" />
+        </Link>
 
         <nav className="bp-nav-links">
-            <a className="active" href="#fleet">Browse Fleet</a>
+          <a className="active" href="#fleet">Browse Fleet</a>
         </nav>
 
         <div className="bp-nav-actions">
-            <button
-            className="bp-notification"
-            type="button"
-            aria-label="Notifications"
-            title="Notifications"
-            >
-            ♧
-            </button>
-
+          {user ? (
             <details className="bp-account-dropdown">
-            <summary className="bp-account">
-                <span className="bp-avatar">S</span>
+              <summary className="bp-account">
+                <span className="bp-avatar">{user.firstName[0]}</span>
                 <span className="bp-account-label">Account</span>
                 <span className="bp-chevron">⌄</span>
-            </summary>
+              </summary>
 
-            <div className="bp-account-menu">
-                <p className="bp-menu-heading">My Account</p>
+              <div className="bp-account-menu">
+                <p className="bp-menu-heading">
+                  {user.firstName} {user.lastName}
+                </p>
 
-                <a href="#profile" className="bp-menu-item">
-                <span>♙</span> My Profile
-                </a>
+                {user.role === 'customer' && (
+                  <>
+                    <Link to="/account" className="bp-menu-item">
+                      <span>♙</span> My Profile
+                    </Link>
+                    <Link to="/account" className="bp-menu-item">
+                      <span>▣</span> My Bookings
+                    </Link>
+                    <Link to="/account" className="bp-menu-item">
+                      <span>⚙</span> Account Settings
+                    </Link>
+                  </>
+                )}
 
-                <a href="#bookings" className="bp-menu-item">
-                <span>▣</span> My Bookings
-                </a>
+                {user.role === 'vendor' && (
+                  <Link to="/vendor" className="bp-menu-item">
+                    <span>▣</span> Vendor dashboard
+                  </Link>
+                )}
 
-                <a href="#saved" className="bp-menu-item">
-                <span>♡</span> Saved Rides ({saved.length})
-                </a>
-
-                <a href="#settings" className="bp-menu-item">
-                <span>⚙</span> Account Settings
-                </a>
+                {user.role === 'admin' && (
+                  <Link to="/admin" className="bp-menu-item">
+                    <span>▣</span> Admin dashboard
+                  </Link>
+                )}
 
                 <div className="bp-menu-divider" />
 
-                <button
-                className="bp-menu-item"
-                type="button"
-                onClick={() => alert('Log out will be connected to the account system later.')}
-                >
-                <span>↪</span> Log Out
+                <button className="bp-menu-item" type="button" onClick={logout}>
+                  <span>↪</span> Log Out
                 </button>
-            </div>
+              </div>
             </details>
+          ) : (
+            <Link className="bp-login-link" to="/login">Log in</Link>
+          )}
         </div>
-        </header>
+      </header>
 
 
-      <section className="bp-hero">
-        <h1>
-          Great roads. <em>Your next ride.</em>
-        </h1>
-        <p>From city essentials to island escapes. Find a ride that feels like you.</p>
+    <section className="bp-hero">
+        <div className="bp-hero-content">
+          <p className="bp-hero-eyebrow">
+            DISCOVER BOHOL, YOUR WAY
+          </p>
+
+          <h1>
+            The island is yours.
+            <br />
+            <em>Find your ride.</em>
+          </h1>
+
+          <p className="bp-hero-description">
+            From coastal escapes to hidden gems, find the
+            perfect car or motorcycle for your Bohol adventure.
+          </p>
+
+          <a className="bp-hero-cta" href="#fleet">
+            Explore the fleet <span>→</span>
+          </a>
+
+          <div className="bp-hero-note">
+            <span className="bp-hero-dot" />
+            YOUR JOURNEY STARTS IN BOHOL
+          </div>
+        </div>
+
+        
+          <div className="bp-hero-visual">
+            <div
+              key={heroIndex}
+              className="bp-hero-image"
+              style={{
+                backgroundImage: `linear-gradient(0deg, rgba(24, 20, 22, 0.4), transparent 40%), url("${heroSlides[heroIndex].image}")`,
+              }}
+            />
+
+            {/* LEFT BUTTON (passing left)*/}
+             <button
+                className="bp-hero-arrow bp-hero-arrow-left"
+                    onClick={() =>
+                      setHeroIndex((current) =>
+                        (current - 1 + heroSlides.length) % heroSlides.length
+                      )
+                    }
+                    aria-label="Previous slide"
+                  >
+                  &#8592; 
+              </button>
+
+              {/* RIGHT BUTTON (passing right) */}
+              <button
+                className="bp-hero-arrow bp-hero-arrow-right"
+                onClick={() =>
+                  setHeroIndex((current) =>
+                    (current + 1) % heroSlides.length
+                  )
+                }
+                aria-label="Next slide"
+              >
+              &#8594;
+            </button>
+
+
+            <div className="bp-hero-image-caption">
+                <span>{heroSlides[heroIndex].location}</span>
+                <span>{heroSlides[heroIndex].caption}</span>
+              </div>
+
+            <div className="bp-hero-indicators">
+              {heroSlides.map((slide, index) => (
+                <button
+                  key={slide.location}
+                  className={`bp-hero-indicator ${
+                    index === heroIndex ? 'active' : ''
+                  }`}
+                  onClick={() => setHeroIndex(index)}
+                  aria-label={`Go to slide ${index + 1}`}
+                  aria-current={index === heroIndex ? 'true' : undefined}
+                />
+              ))}
+            </div>
+          </div>
       </section>
 
       <section className="bp-search" aria-label="Search rides">
         <label>
           Pickup location
-          <select defaultValue="Tagbilaran City">
+          <select value={branch} onChange={(e) => setBranch(e.target.value)}>
+            <option value="All">All branches</option>
             <option>Tagbilaran City</option>
             <option>Panglao</option>
             <option>Loboc</option>
@@ -228,7 +342,8 @@ function BrowsePage() {
           {results.length === 0 ? (
             <div className="bp-empty">
               <p>No rides match these filters.</p>
-              <button className="bp-btn" onClick={resetAll}>Reset filters</button>
+              <button className="bp-btn" 
+              onClick={resetAll}>Reset filters</button>
             </div>
           ) : (
             <div className="bp-grid">
@@ -236,15 +351,13 @@ function BrowsePage() {
                 <article key={v.id} className="bp-card">
                   <div className="bp-photo">
                     <span className="bp-emoji">{v.emoji}</span>
+                    <img
+                      src={v.image}
+                      alt={`${v.brand} ${v.model}`}
+                      loading="lazy"
+                      onError={(e) => { e.currentTarget.style.display = 'none' }}
+                    />
                     {v.badge && <span className="bp-badge">{v.badge}</span>}
-                    <button
-                      className={'bp-heart' + (saved.includes(v.id) ? ' on' : '')}
-                      aria-label={saved.includes(v.id) ? 'Remove from saved rides' : 'Save ride'}
-                      aria-pressed={saved.includes(v.id)}
-                      onClick={() => toggle(saved, setSaved, v.id)}
-                    >
-                      {saved.includes(v.id) ? '♥' : '♡'}
-                    </button>
                   </div>
 
                   <div className="bp-info">
@@ -252,10 +365,11 @@ function BrowsePage() {
                       <span>{v.kind} · {v.style}</span>
                       <span>★ {v.rating}</span>
                     </div>
-                    <h3>{v.name}</h3>
+                    <h3>{v.brand} {v.model}</h3>
                     <p className="bp-specs">
                       {v.transmission} · {v.seats} seats · {v.fuel}
                     </p>
+                    <p className="bp-specs">🏪 {v.shop}</p>
                     <p className="bp-specs">📍 {v.branch}</p>
 
                     <div className="bp-price">
@@ -268,9 +382,11 @@ function BrowsePage() {
                       </span>
                     </div>
 
-                    <button className="bp-btn full" disabled={!v.available}>
-                      Book this ride
-                    </button>
+                    {v.available ? (
+                      <Link className="bp-btn full" to={`/vehicles/${v.id}`}>Book this ride</Link>
+                    ) : (
+                      <button className="bp-btn full" disabled>Booked</button>
+                    )}
                   </div>
                 </article>
               ))}

@@ -1,0 +1,258 @@
+/* Pop-up windows for the account page: payment, receipt, review, extend */
+
+.am-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  padding: 20px;
+  display: grid;
+  place-items: center;
+  background: rgba(32, 33, 36, 0.55);
+}
+
+.am-modal {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 26px;
+  background: #fff;
+  border-radius: 14px;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  color: #202124;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.am-modal * {
+  box-sizing: border-box;
+}
+
+.am-modal h2 {
+  margin: 0 0 14px;
+  font-size: 22px;
+  letter-spacing: -0.5px;
+}
+
+.am-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: #f7f3eb;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.am-sub {
+  margin: -8px 0 14px;
+  color: #6f7074;
+  font-size: 14px;
+}
+
+.am-summary {
+  margin-bottom: 14px;
+  padding: 14px;
+  display: grid;
+  gap: 8px;
+  background: #f7f3eb;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.am-summary div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.am-summary .total {
+  padding-top: 8px;
+  border-top: 1px solid #e6e1d6;
+  font-size: 17px;
+  font-weight: 800;
+  color: #5a1828;
+}
+
+.am-label {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.am-methods {
+  display: grid;
+  gap: 8px;
+}
+
+.am-methods label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid #e6e1d6;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.am-methods label.on {
+  border-color: #5a1828;
+  background: #faf3f4;
+}
+
+.am-methods input {
+  accent-color: #5a1828;
+}
+
+.am-note {
+  margin: 14px 0 0;
+  color: #6f7074;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.am-warn {
+  margin: 0;
+  color: #a33a3a;
+  font-size: 13px;
+}
+
+.am-error {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid #e3b5b5;
+  border-radius: 8px;
+  background: #faeeee;
+  color: #a33a3a;
+  font-size: 13px;
+}
+
+.am-field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.am-field input,
+.am-field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e6e1d6;
+  border-radius: 8px;
+  font: inherit;
+  color: #202124;
+}
+
+.am-stars {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.am-stars button {
+  border: none;
+  background: none;
+  color: #d6d0c4;
+  font-size: 34px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.am-stars button.on {
+  color: #d5b46a;
+}
+
+.am-actions {
+  margin-top: 18px;
+  display: flex;
+  gap: 10px;
+}
+
+/* RECEIPT */
+.am-receipt {
+  padding: 18px;
+  border: 1px dashed #cfc5ad;
+  border-radius: 10px;
+}
+
+.am-receipt-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e6e1d6;
+  font-size: 14px;
+}
+
+.am-receipt-head strong {
+  color: #5a1828;
+  font-size: 18px;
+}
+
+.am-receipt dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 16px;
+  font-size: 13px;
+}
+
+.am-receipt dt {
+  color: #6f7074;
+}
+
+.am-receipt dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 600;
+}
+
+.am-receipt-total {
+  margin-top: 14px;
+  padding-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #e6e1d6;
+}
+
+.am-receipt-total strong {
+  font-size: 22px;
+  color: #5a1828;
+}
+
+/* Paid label on booking cards */
+.ac-status.paid {
+  background: #e3f3e9;
+  color: #2f7a4d;
+}
+
+.ac-ext {
+  color: #8a6d1f !important;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .am-receipt,
+  .am-receipt * {
+    visibility: visible;
+  }
+
+  .am-receipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none;
+  }
+}
