@@ -54,7 +54,7 @@ class VehicleController extends Controller
             return response()->json(['message' => 'Your shop must be approved before you can list vehicles.'], 403);
         }
 
-        $data = $request->validate($this->rules());
+        $data = $request->validate($this->rules(), $this->messages());
 
         $branch = $this->branchFor($vendor, $data['branch']);
 
@@ -76,7 +76,7 @@ class VehicleController extends Controller
             return response()->json(['message' => 'You cannot change this vehicle.'], 403);
         }
 
-        $data = $request->validate($this->rules(partial: true, ignoreId: $model->id));
+        $data = $request->validate($this->rules(partial: true, ignoreId: $model->id), $this->messages());
 
         $changes = $this->columns($data);
 
@@ -134,9 +134,16 @@ class VehicleController extends Controller
             'fuel'         => ['nullable', 'string', 'max:20'],
             'rate'         => [$req, 'numeric', 'gt:0', 'max:9999999'],
             'branch'       => [$req, 'string', 'max:150'],
-            'image'        => ['nullable', 'string', 'max:255'],
+            'image'        => ['nullable', 'string', 'max:255', 'regex:/^(\/images\/[\w\-. ]+\.(jpg|jpeg|png|webp)|https:\/\/\S+)$/i'],
             'badge'        => ['nullable', 'string', 'max:100'],
             'status'       => ['nullable', 'in:Available,Rented,Under maintenance'],
+        ];
+    }
+
+    private function messages(): array
+    {
+        return [
+            'image.regex' => 'The photo must be a picture path like /images/car.jpg or a web address starting with https://.',
         ];
     }
 

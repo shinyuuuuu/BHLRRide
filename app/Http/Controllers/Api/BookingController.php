@@ -16,6 +16,9 @@ class BookingController extends Controller
     /** Statuses that block a vehicle's dates. */
     private const BLOCKING = ['pending', 'approved'];
 
+    /** Longest rental a customer can request, in days. */
+    private const MAX_DAYS = 60;
+
     private function shape(Booking $b): array
     {
         $account = $b->account;
@@ -78,6 +81,10 @@ class BookingController extends Controller
 
         if ($start->lt(Carbon::today(config('app.timezone')))) {
             return response()->json(['message' => 'Pick-up date cannot be in the past.'], 422);
+        }
+
+        if ((int) $start->diffInDays($end) > self::MAX_DAYS) {
+            return response()->json(['message' => 'Bookings can be up to '.self::MAX_DAYS.' days. Please choose a shorter rental.'], 422);
         }
 
         $booking = DB::transaction(function () use ($data, $account, $start, $end) {

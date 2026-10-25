@@ -99,6 +99,7 @@ function VehiclePage() {
     if (!start || !end) return setError('Please choose your pick-up and return dates.')
     if (start < TODAY) return setError('Pick-up date cannot be in the past.')
     if (end < start) return setError('Return date must be on or after the pick-up date.')
+    if (days > 60) return setError('Bookings can be up to 60 days. Please choose a shorter rental.')
     if (clash) return setError('This ride is already booked for some of those dates. Please try other dates.')
 
     setSaving(true)
