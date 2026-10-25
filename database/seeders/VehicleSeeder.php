@@ -62,7 +62,7 @@ class VehicleSeeder extends Seeder
             ['Honda',  'Click 125', '123 ABC',  'Panglao Ride Hub', 'Motorcycle', 'Scooter',   'Automatic', 2,  'Petrol', 600,  'Island essential',    '/images/hondaClick.jpg',   true],
             ['Yamaha', 'NMAX',      '234 BCD',  'Bohol Wheels',     'Motorcycle', 'Scooter',   'Automatic', 2,  'Petrol', 900,  '',                    '/images/yamahaNMAX.jpg',   true],
             ['Honda',  'XR150L',    '345 CDE',  'Loboc Riders',     'Motorcycle', 'Adventure', 'Manual',    2,  'Petrol', 800,  'Chocolate Hills runs', '/images/hondaXR150L.jpg', true],
-            ['Yamaha', 'Mio i 125', '456 DEF',  'Loboc Riders',     'Motorcycle', 'Scooter',   'Automatic', 2,  'Petrol', 500,  '',                    '/images/yamahaMio.jpg',    false],
+            ['Yamaha', 'Mio i 125', '456 DEF',  'Loboc Riders',     'Motorcycle', 'Scooter',   'Automatic', 2,  'Petrol', 500,  '',                    '/images/yamahaMio.jpg',    true],
         ];
 
         foreach ($vehicles as [$brand, $model, $plate, $shop, $kind, $style, $trans, $seats, $fuel, $rate, $badge, $image, $available]) {
@@ -83,7 +83,7 @@ class VehicleSeeder extends Seeder
                     'rental_rate'     => $rate,
                     'badge'           => $badge,
                     'image'           => $image,
-                    'status'          => $available ? 'available' : 'unavailable',
+                    'status'          => $available ? 'available' : 'rented',
                 ]
             );
         }

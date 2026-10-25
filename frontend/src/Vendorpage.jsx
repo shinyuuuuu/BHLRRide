@@ -149,7 +149,7 @@ function VendorPage() {
 
 
     // with validations for plate number, brand, number (rate), and seats. 
-    const saveVehicle = (e) => {
+    const saveVehicle = async (e) => {
         e.preventDefault()
         if (!form.brand.trim() || !form.model.trim())
             return setFormError('Please enter the brand and model.')
@@ -165,7 +165,7 @@ function VendorPage() {
             model: form.model.trim(),
             plateNumber: form.plateNumber.trim().toUpperCase(),
             kind: form.kind,
-            style: form.style.trim() || form.trim,
+            style: form.style.trim() || form.kind,
             transmission: form.transmission,
             seats: Number(form.seats),
             fuel: form.fuel,
@@ -174,39 +174,52 @@ function VendorPage() {
             image: form.image.trim(),
         }
 
-        if (editing === 'new') {
-            addVehicle({
-                ...details,
-                shop,
-                rating: 0, 
-                badge: '',
-                status: 'Available',
-                available: true,
-            })
+        try {
+            if (editing === 'new') {
+                await addVehicle({
+                    ...details,
+                    shop,
+                    rating: 0,
+                    badge: '',
+                    status: 'Available',
+                    available: true,
+                })
 
-            setNotice(`${details.brand} ${details.model} was added.`)
-        } else {
-            updateVehicles(editing, details)
-            setNotice('${details.brand} ${details.model} was updated')
+                setNotice(`${details.brand} ${details.model} was added.`)
+            } else {
+                await updateVehicles(editing, details)
+                setNotice(`${details.brand} ${details.model} was updated.`)
+            }
+            setEditing(null)
+        } catch (error) {
+            setFormError(error.message)
         }
-        setEditing(null)
     }
 
-    const setStatus = (v, status) => 
-        updateVehicles(v.id, { status, available: status === 'Available' })
+    const setStatus = async (v, status) => {
+        try {
+            await updateVehicles(v.id, { status, available: status === 'Available' })
+        } catch (error) {
+            setNotice(error.message)
+        }
+    }
 
-    const remove = (v) => {
+    const remove = async (v) => {
         if (bookings.some((b) => b.vehicleId === v.id)) {
             return setNotice(
                `${v.brand} ${v.model} has booking records, so it can't be removed. Set it to "Under maintenance" instead.`,  
             )
         }
 
-        if(!window.confirm('Remove ${v.brand} ${v.model}?')) 
+        if(!window.confirm(`Remove ${v.brand} ${v.model}?`))
             return
 
-        removeVehicle(v.id)
-        setNotice('${v.brand} ${v.model} was removed.')
+        try {
+            await removeVehicle(v.id)
+            setNotice(`${v.brand} ${v.model} was removed.`)
+        } catch (error) {
+            setNotice(error.message)
+        }
     }
 
 
@@ -517,7 +530,7 @@ function VendorPage() {
                 </article>
               ))}
  
-              <button className="vd-link" onClick={() => { resetVehicles(); setNotice('Vehicles were reset to the demo list.') }}>
+              <button className="vd-link" onClick={() => { resetVehicles(); setNotice('Vehicle list refreshed.') }}>
                 Reset demo vehicles
               </button>
             </section>

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useVendors } from './data/vendorstore.js'
+import { api } from './api.js'
 import { cleanName } from './utils/text.js'
 import './Loginpage.css'
 import './Vendorsignup.css'
@@ -42,7 +42,7 @@ function Field({ label, error, children }) {
 }
 
 function VendorSignup() {
-  const { vendors, addVendor } = useVendors()
+  const [saving, setSaving] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [showPassword, setShowPassword] = useState(false)
   const [errors, setErrors] = useState({})
@@ -65,7 +65,7 @@ function VendorSignup() {
 
     if (!email) found.email = 'Please enter your email address.'
     else if (!emailOk(email)) found.email = 'Please enter a valid email, like name@example.com.'
-    else if (RESERVED_EMAILS.includes(email) || vendors.some((v) => v.email === email)) {
+    else if (RESERVED_EMAILS.includes(email)) {
       found.email = 'That email is already registered.'
     }
 
@@ -77,18 +77,15 @@ function VendorSignup() {
     if (form.password !== form.confirm) found.confirm = 'Passwords do not match.'
 
     if (!business) found.businessName = 'Please enter your business name.'
-    // DEMO ONLY: names must be unique because the demo links vehicles to shops by name
-    else if (vendors.some((v) => v.businessName.toLowerCase() === business.toLowerCase())) {
-      found.businessName = 'A business with that name is already registered.'
-    }
 
     if (!form.street.trim()) found.street = 'Please enter your street address.'
 
     return found
   }
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault()
+    if (saving) return
 
     const found = validate()
     setErrors(found)
@@ -99,21 +96,35 @@ function VendorSignup() {
       return
     }
 
-    addVendor({
-      id: 'VN-' + Date.now().toString().slice(-5),
-      businessName: form.businessName.trim(),
-      ownerFirst: cleanName(form.ownerFirst),
-      ownerLast: cleanName(form.ownerLast),
-      email: form.email.trim().toLowerCase(),
-      password: form.password, // DEMO ONLY. The real backend must store a hashed password.
-      phone: form.phone.trim(),
-      street: form.street.trim(),
-      city: form.city,
-      province: 'Bohol',
-      status: 'Pending',
-      appliedAt: new Date().toISOString(),
-    })
-    setDone(form.businessName.trim())
+    setSaving(true)
+    try {
+      await api('/vendor-applications', {
+        method: 'POST',
+        body: {
+          ownerFirst: cleanName(form.ownerFirst),
+          ownerLast: cleanName(form.ownerLast),
+          email: form.email.trim().toLowerCase(),
+          phone: form.phone.trim(),
+          password: form.password,
+          businessName: form.businessName.trim(),
+          street: form.street.trim(),
+          city: form.city,
+        },
+      })
+      setDone(form.businessName.trim())
+    } catch (error) {
+      // the server names the box that is wrong (email, businessName...)
+      const serverErrors = {}
+      Object.entries(error.errors || {}).forEach(([field, messages]) => {
+        serverErrors[field] = messages[0]
+      })
+      if (Object.keys(serverErrors).length === 0) serverErrors.businessName = error.message
+      setErrors(serverErrors)
+      const firstBad = FIELD_ORDER.find((key) => serverErrors[key])
+      if (firstBad) document.getElementById('vs-' + firstBad)?.focus()
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -248,7 +259,7 @@ function VendorSignup() {
               </Field>
             </div>
 
-            <button className="lg-submit" type="submit">Submit application →</button>
+            <button className="lg-submit" type="submit" disabled={saving}>{saving ? 'Sending…' : 'Submit application →'}</button>
 
             <p className="lg-switch">
               Already approved? <Link to="/login">Log in</Link>

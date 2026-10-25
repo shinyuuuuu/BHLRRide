@@ -94,14 +94,18 @@ function AdminPage() {
 
 
   /* VENDORS */
-  const decide = (v, status) => {
+  const decide = async (v, status) => {
     if (status === 'Rejected' && !window.confirm(`Reject ${v.businessName}?`)) return
-    updateVendor(v.id, {
-      status,
-      decidedAt: new Date().toISOString(),
-      decidedBy: `${user.firstName} ${user.lastName}`,
-    })
-    setNotice(`${v.businessName} was ${status.toLowerCase()}.`)
+    try {
+      await updateVendor(v.id, {
+        status,
+        decidedAt: new Date().toISOString(),
+        decidedBy: `${user.firstName} ${user.lastName}`,
+      })
+      setNotice(`${v.businessName} was ${status.toLowerCase()}.`)
+    } catch (error) {
+      setNotice(error.message)
+    }
   }
 
   const shownVendors = vendors.filter((v) => vendorFilter === 'All' || v.status === vendorFilter)

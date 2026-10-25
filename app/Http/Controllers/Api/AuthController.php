@@ -7,6 +7,7 @@ use App\Models\Account;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
@@ -29,9 +30,37 @@ class AuthController extends Controller
         ];
     }
 
+    /** Why this account may not use the site right now (or null if it may). */
+    private function blockedReason(Account $account): ?string
+    {
+        if ($account->account_status !== 'active') {
+            return 'This account is not active.';
+        }
+
+        if ($account->role === 'vendor') {
+            $status = $account->vendor?->approval_status;
+            if ($status === 'pending') {
+                return 'Your application is still waiting for admin approval.';
+            }
+            if ($status === 'rejected') {
+                return 'Your vendor application was not approved.';
+            }
+        }
+
+        return null;
+    }
+
     public function me(Request $request): JsonResponse
     {
         $account = $request->user();
+
+        // A pending vendor must not get in through some other login page
+        if ($account && $this->blockedReason($account)) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            $account = null;
+        }
 
         return response()->json(['user' => $account ? $this->payload($account) : null]);
     }
@@ -50,17 +79,7 @@ class AuthController extends Controller
         /** @var Account $account */
         $account = Auth::user();
 
-        $blocked = null;
-        if ($account->account_status !== 'active') {
-            $blocked = 'This account is not active.';
-        } elseif ($account->role === 'vendor') {
-            $status = $account->vendor?->approval_status;
-            if ($status === 'pending') {
-                $blocked = 'Your application is still waiting for admin approval.';
-            } elseif ($status === 'rejected') {
-                $blocked = 'Your vendor application was not approved.';
-            }
-        }
+        $blocked = $this->blockedReason($account);
 
         if ($blocked) {
             Auth::guard('web')->logout();
@@ -100,6 +119,52 @@ class AuthController extends Controller
         $request->session()->regenerate();
 
         return response()->json(['user' => $this->payload($account)], 201);
+    }
+
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $account = $request->user();
+
+        $data = $request->validate([
+            'firstName'  => ['required', 'string', 'max:100'],
+            'middleName' => ['nullable', 'string', 'max:100'],
+            'lastName'   => ['required', 'string', 'max:100'],
+            'email'      => ['required', 'string', 'email', 'max:255', 'unique:accounts,email,'.$account->id],
+            'phone'      => ['nullable', 'string', 'max:30'],
+        ], [
+            'email.unique' => 'That email is already registered.',
+        ]);
+
+        $account->update([
+            'first_name'  => $data['firstName'],
+            'middle_name' => $data['middleName'] ?? null,
+            'last_name'   => $data['lastName'],
+            'email'       => strtolower(trim($data['email'])),
+            'phone'       => $data['phone'] ?? null,
+        ]);
+
+        return response()->json(['user' => $this->payload($account->fresh())]);
+    }
+
+    public function changePassword(Request $request): JsonResponse
+    {
+        $account = $request->user();
+
+        $data = $request->validate([
+            'current'  => ['required', 'string'],
+            'password' => ['required', 'string', Password::min(8), 'different:current'],
+        ]);
+
+        if (! Hash::check($data['current'], $account->password)) {
+            return response()->json([
+                'message' => 'Your current password is incorrect.',
+                'errors'  => ['current' => ['Your current password is incorrect.']],
+            ], 422);
+        }
+
+        $account->update(['password' => $data['password']]);
+
+        return response()->json(['ok' => true]);
     }
 
     public function logout(Request $request): JsonResponse

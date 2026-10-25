@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\VendorController as AdminVendorController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\VehicleController;
+use App\Http\Controllers\Api\VendorApplicationController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,10 +16,24 @@ Route::prefix('api')->group(function () {
     Route::get('/vehicles', [VehicleController::class, 'index']);
     Route::get('/vehicles/{vehicle}/availability', [BookingController::class, 'availability'])->whereNumber('vehicle');
 
+    Route::post('/vendor-applications', [VendorApplicationController::class, 'store'])->middleware('throttle:5,1');
+
     Route::middleware('auth')->group(function () {
+        Route::patch('/profile', [AuthController::class, 'updateProfile']);
+        Route::put('/password', [AuthController::class, 'changePassword'])->middleware('throttle:6,1');
+
         Route::get('/bookings', [BookingController::class, 'index']);
         Route::post('/bookings', [BookingController::class, 'store'])->middleware('throttle:20,1');
         Route::patch('/bookings/{id}', [BookingController::class, 'update']);
+
+        Route::post('/vehicles', [VehicleController::class, 'store'])->middleware('role:vendor');
+        Route::patch('/vehicles/{vehicle}', [VehicleController::class, 'update'])->middleware('role:vendor,admin')->whereNumber('vehicle');
+        Route::delete('/vehicles/{vehicle}', [VehicleController::class, 'destroy'])->middleware('role:vendor,admin')->whereNumber('vehicle');
+
+        Route::middleware('role:admin')->prefix('admin')->group(function () {
+            Route::get('/vendors', [AdminVendorController::class, 'index']);
+            Route::patch('/vendors/{id}', [AdminVendorController::class, 'update']);
+        });
     });
 });
 

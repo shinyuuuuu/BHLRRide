@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from './auth/auth.js'
 import { useVehicles } from './data/vehiclestore.js'
+import { api } from './api.js'
 import { useBookings } from './data/bookingstore.js'
 import { usePayments } from './data/paymentstore.js'
 import { useReviews } from './data/reviewstore.js'
@@ -41,7 +42,7 @@ function AccountPage() {
   const [pwErrors, setPwErrors] = useState({})
   const [pwDone, setPwDone] = useState(false)
   const [editing, setEditing] = useState(false)
-  const { user, logout } = useAuth()
+  const { user, logout, updateUser } = useAuth()
   const [profile, setProfile] = useState({
     firstName: user.firstName,
     middleName: user.middleName || '',
@@ -87,7 +88,7 @@ const cancelBooking = (id) => {
 }
 
 
-const saveProfile = () => {
+const saveProfile = async () => {
   const found = {}
   if (!profile.firstName.trim()) found.firstName = 'Please enter your first name.'
   if (!profile.lastName.trim()) found.lastName = 'Please enter your last name.'
@@ -96,14 +97,31 @@ const saveProfile = () => {
   setProfileErrors(found)
   if (Object.keys(found).length > 0) return
 
-  setProfile({
-    ...profile,
+  const cleaned = {
     firstName: cleanName(profile.firstName),
     middleName: cleanName(profile.middleName),
     lastName: cleanName(profile.lastName),
     email: cleanEmail(profile.email),
     phone: profile.phone.trim(),
-  })
+  }
+
+  // real accounts save to the database; demo accounts just change the screen
+  if (!user.demo) {
+    try {
+      const { user: updated } = await api('/profile', { method: 'PATCH', body: cleaned })
+      updateUser(updated)
+    } catch (error) {
+      const fromServer = {}
+      Object.entries(error.errors || {}).forEach(([field, messages]) => {
+        fromServer[field] = messages[0]
+      })
+      if (Object.keys(fromServer).length === 0) fromServer.email = error.message
+      setProfileErrors(fromServer)
+      return
+    }
+  }
+
+  setProfile({ ...profile, ...cleaned })
   setEditing(false)
   }
 
@@ -112,7 +130,7 @@ const saveProfile = () => {
   if (pwErrors[field]) setPwErrors({ ...pwErrors, [field]: '' })
   }
 
-  const changePassword = () => {
+  const changePassword = async () => {
   const found = {}
   if (!pw.current) found.current = 'Please enter your current password.'
   if (pw.next.length < 8) found.next = 'New password must be at least 8 characters.'
@@ -122,8 +140,18 @@ const saveProfile = () => {
   setPwDone(false)
   if (Object.keys(found).length > 0) return
 
+  if (!user.demo) {
+    try {
+      await api('/password', { method: 'PUT', body: { current: pw.current, password: pw.next } })
+    } catch (error) {
+      const message = error.errors?.current?.[0] || error.errors?.password?.[0] || error.message
+      setPwErrors({ [error.errors?.current ? 'current' : 'next']: message })
+      return
+    }
+  }
+
   setPw({ current: '', next: '', confirm: '' })
-  setPwDone(true) // demo only: the backend does the real change later
+  setPwDone(true)
 }
 
   const closeModal = () => setModal(null)
@@ -392,7 +420,7 @@ const saveProfile = () => {
                   </label>
                 
                   <button className="ac-btn" onClick={changePassword}>Update password</button>
-                  {pwDone && <p style={{ gridColumn: '1 / -1', margin: 0, color: '#2f7a4d' }}>Password updated (demo).</p>}
+                  {pwDone && <p style={{ gridColumn: '1 / -1', margin: 0, color: '#2f7a4d' }}>Password updated.</p>}
 
                   
                 <label>
