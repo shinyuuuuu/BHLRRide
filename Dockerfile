@@ -3,6 +3,7 @@ WORKDIR /frontend
 COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend/ ./
+ENV VITE_DEMO=true
 RUN npm run build
 
 FROM node:20 AS assets
