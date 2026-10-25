@@ -120,6 +120,8 @@ const saveProfile = async () => {
       setProfileErrors(fromServer)
       return
     }
+  } else {
+      updateUser({ ...user, ...cleaned })
   }
 
   setProfile({ ...profile, ...cleaned })
