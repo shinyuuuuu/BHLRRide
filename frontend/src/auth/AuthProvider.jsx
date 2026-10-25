@@ -81,36 +81,39 @@ export function AuthProvider ({ children }) {
             return { ok: true }
         }
 
-        // Vendors who applied through "Become a vendor" (demo only, until the vendor step is built)
-        if (DEMO) {
-            const application = readVendors().find((v) => v.email === clean && v.password === password)
-            if (application) {
-                if (application.status === 'Pending') {
-                    return { ok: false, error: 'Your application is still waiting for admin approval.' }
-                }
-                if (application.status === 'Rejected') {
-                    return { ok: false, error: 'Your vendor application was not approved.' }
-                }
-                save({
-                    email: clean,
-                    firstName: application.ownerFirst,
-                    middleName: '',
-                    lastName: application.ownerLast,
-                    phone: application.phone,
-                    role: 'vendor',
-                    shop: application.businessName,
-                    demo: true,
-                })
-                return { ok: true }
-            }
-        }
-
+        // Real accounts come first: ask the server.
         try {
             const { user: account } = await api('/login', { method: 'POST', body: { email: clean, password } })
             save(account)
             return { ok: true }
         } catch (error) {
-            return { ok: false, error: error.message }
+            // Only when the server says "wrong email or password" do we look at the old
+            // browser-only vendor applications (demo mode). Any other answer is shown as is.
+            if (!DEMO || error.status !== 422) {
+                return { ok: false, error: error.message }
+            }
+
+            const application = readVendors().find((v) => v.email === clean && v.password === password)
+            if (!application) {
+                return { ok: false, error: error.message }
+            }
+            if (application.status === 'Pending') {
+                return { ok: false, error: 'Your application is still waiting for admin approval.' }
+            }
+            if (application.status === 'Rejected') {
+                return { ok: false, error: 'Your vendor application was not approved.' }
+            }
+            save({
+                email: clean,
+                firstName: application.ownerFirst,
+                middleName: '',
+                lastName: application.ownerLast,
+                phone: application.phone,
+                role: 'vendor',
+                shop: application.businessName,
+                demo: true,
+            })
+            return { ok: true }
         }
     }
 
