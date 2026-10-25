@@ -3,6 +3,9 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
+Route::redirect('/', '/app/');
+Route::get('/app/{path?}', fn () => response()->file(public_path('app/index.html')))->where('path', '.*');
+
 Route::get('/', function () {
     return view('welcome');
 });
