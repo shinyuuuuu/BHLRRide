@@ -2,13 +2,12 @@ import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from './auth/auth.js'
 import { useVehicles } from './data/vehiclestore.js'
-import { useBookings } from './data/bookingstore.js'
+import { useBookings, useAvailability } from './data/bookingstore.js'
 import { useReviews  } from './data/reviewstore.js'
 import AvailabilityCalendar from './Availabilitycalendar.jsx'
 import './vehiclepage.css'
 
 const peso = (n) => '₱' + n.toLocaleString('en-PH')
-const newBookingId = () => 'BK-' + Date.now().toString().slice(-5)
 
 const pad = (n) => String(n).padStart(2, '0')
 const todayStr = () => {
@@ -25,18 +24,19 @@ const fmtDate = (d) =>
 
 function VehiclePage() {
   const { id } = useParams()
-  const { vehicles } = useVehicles()
+  const { vehicles, loading } = useVehicles()
   const vehicle = vehicles.find((v) => v.id === Number(id))
   const { user } = useAuth()
   const navigate = useNavigate()
   const { bookings, addBooking } = useBookings()
+  const { taken, refresh } = useAvailability(vehicle?.id)
 
 
   const { reviews } = useReviews()
 
   const vehicleBookingIds = new Set(
     bookings
-      .filter((booking) => booking.vehicleId === vehicle.id)
+      .filter((booking) => booking.vehicleId === vehicle?.id)
       .map((booking) => booking.id)
   )
 
@@ -56,6 +56,17 @@ function VehiclePage() {
   const [end, setEnd] = useState('')
   const [error, setError] = useState('')
   const [done, setDone] = useState(null)
+  const [saving, setSaving] = useState(false)
+
+  if (!vehicle && loading) {
+    return (
+      <div className="vp">
+        <div className="vp-notfound">
+          <h1>Loading…</h1>
+        </div>
+      </div>
+    )
+  }
 
   if (!vehicle) {
     return (
@@ -76,7 +87,7 @@ function VehiclePage() {
   // Availability check: any Pending or Approved booking that overlaps these dates
   const clash =
     validDates &&
-    bookings.some(
+    taken.some(
       (b) =>
         b.vehicleId === vehicle.id &&
         (b.status === 'Pending' || b.status === 'Approved') &&
@@ -84,8 +95,9 @@ function VehiclePage() {
         b.end > start,
     )
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault()
+    if (saving) return
     setError('')
 
     if (!user) {
@@ -99,16 +111,22 @@ function VehiclePage() {
     if (end < start) return setError('Return date must be on or after the pick-up date.')
     if (clash) return setError('This ride is already booked for some of those dates. Please try other dates.')
 
-    const booking = {
-      id: newBookingId(),
-      vehicleId: vehicle.id,
-      start,
-      end,
-      customer: user.firstName + ' ' + user.lastName,
-      status: 'Pending',
+    setSaving(true)
+    try {
+      const booking = await addBooking({
+        vehicleId: vehicle.id,
+        start,
+        end,
+        customer: user.firstName + ' ' + user.lastName,
+      })
+      setDone(booking)
+      refresh()
+    } catch (err) {
+      setError(err.message)
+      refresh()
+    } finally {
+      setSaving(false)
     }
-    addBooking(booking)
-    setDone(booking)
   }
 
   const specs = [
@@ -267,7 +285,7 @@ function VehiclePage() {
 
               <AvailabilityCalendar
                   vehicleId={vehicle.id}
-                  bookings={bookings}
+                  bookings={taken}
                   start={start}
                   end={end}
                   onStartChange={setStart}
@@ -298,8 +316,8 @@ function VehiclePage() {
                 <p className="vp-ok">✓ Available for your dates</p>
               )}
 
-              <button className="vp-btn" type="submit" disabled={!vehicle.available}>
-                {user ? 'Request booking' : 'Log in to book'}
+              <button className="vp-btn" type="submit" disabled={!vehicle.available || saving}>
+                {saving ? 'Sending…' : user ? 'Request booking' : 'Log in to book'}
               </button>
               <p className="vp-small">You won't be charged yet. The shop reviews every request.</p>
             </form>

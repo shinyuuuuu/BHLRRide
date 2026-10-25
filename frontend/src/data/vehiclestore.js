@@ -35,15 +35,21 @@ export function useVehicles() {
     // The real list comes from Laravel. While developing without the backend
     // running, fall back to the sample list so the pages still work.
     const [vehicles, setVehicles] = useState(import.meta.env.DEV ? read : [])
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         let cancelled = false
         api('/vehicles')
             .then(({ vehicles: list }) => {
-                if (!cancelled) setVehicles(list)
+                if (!cancelled) {
+                    setVehicles(list)
+                    setLoading(false)
+                }
             })
             .catch(() => {
-                if (!cancelled && import.meta.env.DEV) setVehicles(read())
+                if (cancelled) return
+                if (import.meta.env.DEV) setVehicles(read())
+                setLoading(false)
             })
         return () => { cancelled = true }
     }, [])
@@ -54,7 +60,8 @@ export function useVehicles() {
     }
 
     return {
-        vehicles, 
+        vehicles,
+        loading,
         addVehicle: (vehicle) => 
             save([... vehicles, {...vehicle, id: Math.max(0, ...vehicles.map((v) => v.id)) + 1 }]),
         updateVehicles: (id, changes) => 
