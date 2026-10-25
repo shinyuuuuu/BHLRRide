@@ -9,6 +9,6 @@ export const vehicles = [
   { id: 5, brand: 'Honda', model: 'Click 125', plateNumber: '123 ABC', shop: 'Panglao Ride Hub', kind: 'Motorcycle', style: 'Scooter', transmission: 'Automatic', seats: 2, fuel: 'Petrol', rate: 600, rating: 4.9, branch: 'Panglao', badge: 'Island essential', available: true, image: '/images/hondaClick.jpg', emoji: '🛵' },
   { id: 6, brand: 'Yamaha', model: 'NMAX', plateNumber: '234 BCD', shop: 'Bohol Wheels', kind: 'Motorcycle', style: 'Scooter', transmission: 'Automatic', seats: 2, fuel: 'Petrol', rate: 900, rating: 4.8, branch: 'Tagbilaran City', badge: '', available: true, image: '/images/yamahaNMAX.jpg', emoji: '🛵' },
   { id: 7, brand: 'Honda', model: 'XR150L', plateNumber: '345 CDE', shop: 'Loboc Riders', kind: 'Motorcycle', style: 'Adventure', transmission: 'Manual', seats: 2, fuel: 'Petrol', rate: 800, rating: 4.6, branch: 'Loboc', badge: 'Chocolate Hills runs', available: true, image: '/images/hondaXR150L.jpg', emoji: '🏍️' },
-  { id: 8, brand: 'Yamaha', model: 'Mio i 125', plateNumber: '456 DEF', shop: 'Loboc Riders', kind: 'Motorcycle', style: 'Scooter', transmission: 'Automatic', seats: 2, fuel: 'Petrol', rate: 500, rating: 4.5, branch: 'Loboc', badge: '', available: false, image: '/images/yamahaMio.jpg', emoji: '🛵' },
+  { id: 8, brand: 'Yamaha', model: 'Mio i 125', plateNumber: '456 DEF', shop: 'Loboc Riders', kind: 'Motorcycle', style: 'Scooter', transmission: 'Automatic', seats: 2, fuel: 'Petrol', rate: 500, rating: 4.5, branch: 'Loboc', badge: '', available: true, image: '/images/yamahaMio.jpg', emoji: '🛵' },
 ]
 
