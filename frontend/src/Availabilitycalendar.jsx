@@ -1,6 +1,6 @@
 
 import { useMemo, useState } from 'react'
-import './AvailabilityCalendar.css'
+import './Availabilitycalendar.css'
 
 
 // Used to scratch out existing dates nga naay bookings. Mo apply on individual rides
