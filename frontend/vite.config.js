@@ -5,4 +5,10 @@ import { defineConfig } from 'vite'
 export default defineConfig(({ command }) => ({
   base: command === 'build' ? '/app/' : '/',
   plugins: [react()],
+  server: {
+    // while developing, send /api requests to `php artisan serve`
+    proxy: {
+      '/api': 'http://127.0.0.1:8000',
+    },
+  },
 }))

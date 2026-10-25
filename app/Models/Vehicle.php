@@ -20,12 +20,20 @@ class Vehicle extends Model
         'rental_rate',
         'status',
         'description',
+        'kind',
+        'style',
+        'transmission',
+        'seats',
+        'fuel',
+        'badge',
+        'image',
     ];
 
     protected function casts(): array
     {
         return [
             'rental_rate' => 'decimal:2',
+            'seats' => 'integer',
         ];
     }
 

@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { api } from '../api.js'
 import { vehicles as seed } from './vehicles'
 
 // makeshift vehicle storage (need it as I test while I work)
@@ -31,7 +32,21 @@ const write = (list) => {
 }
 
 export function useVehicles() {
-    const [vehicles, setVehicles] = useState(read)
+    // The real list comes from Laravel. While developing without the backend
+    // running, fall back to the sample list so the pages still work.
+    const [vehicles, setVehicles] = useState(import.meta.env.DEV ? read : [])
+
+    useEffect(() => {
+        let cancelled = false
+        api('/vehicles')
+            .then(({ vehicles: list }) => {
+                if (!cancelled) setVehicles(list)
+            })
+            .catch(() => {
+                if (!cancelled && import.meta.env.DEV) setVehicles(read())
+            })
+        return () => { cancelled = true }
+    }, [])
 
     const save = (next) => {
         setVehicles(next)

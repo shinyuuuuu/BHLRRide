@@ -90,7 +90,7 @@ function LoginPage() {
     return found
   }
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault()
     setFormError('')
 
@@ -104,12 +104,12 @@ function LoginPage() {
     }
 
     if (isLogin) {
-      const result = login(form.email, form.password)
+      const result = await login(form.email, form.password)
       if (!result.ok) setFormError(result.error)
       return
     }
 
-    const result = signup(form)
+    const result = await signup(form)
     if (!result.ok) {
       setErrors({ email: result.error })
       document.getElementById('lg-email')?.focus()
