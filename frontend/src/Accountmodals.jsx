@@ -63,7 +63,7 @@ export function PaymentModal({ booking, vehicle, amount, onPay, onClose }) {
       </div>
 
       <p className="am-note">
-        Demo only: no real payment is made, and no card details are collected.
+        You'll be sent to PayMongo's secure page to finish paying. BHLRRide never sees your card or wallet details.
       </p>
 
       <div className="am-actions">

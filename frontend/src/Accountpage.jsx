@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from './auth/auth.js'
 import { useVehicles } from './data/vehiclestore.js'
@@ -54,9 +54,10 @@ function AccountPage() {
   // Bookings, payments, reviews
   const { vehicles } = useVehicles()
   const { bookings, updateBooking } = useBookings()
-  const { payments, addPayment } = usePayments()
+  const { payments, addPayment, startPayment, verifyPayment } = usePayments()
   const { addReview } = useReviews()
   const [statusFilter, setStatusFilter] = useState('All')
+  const [payNotice, setPayNotice] = useState('')
   const [modal, setModal] = useState(null) // { type: 'pay' | 'receipt' | 'review' | 'extend', booking }
 
   const findVehicle = (id) => vehicles.find((v) => v.id === id)
@@ -156,7 +157,17 @@ const saveProfile = async () => {
 
   const closeModal = () => setModal(null)
 
-  const pay = (booking, method) => {
+  const pay = async (booking, method) => {
+    // real accounts: go to PayMongo's secure page (the page leaves, then comes back)
+    if (!user.demo) {
+      try {
+        await startPayment(booking.id, method)
+      } catch (error) {
+        window.alert(error.message)
+      }
+      return
+    }
+
     addPayment({
       id: 'PAY-' + Date.now().toString().slice(-6),
       bookingId: booking.id,
@@ -170,16 +181,48 @@ const saveProfile = async () => {
     setModal({ type: 'receipt', booking })
   }
 
-  const submitReview = (booking, rating, comment) => {
-    addReview({
-      id: 'RV-' + Date.now().toString().slice(-6),
-      bookingId: booking.id,
-      rating,
-      comment,
-      date: new Date().toISOString(),
-    })
-    updateBooking(booking.id, { reviewed: true })
-    closeModal()
+  // Coming back from PayMongo: ?paid=<payment id> (or ?cancelled=1)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const paidId = params.get('paid')
+    const cancelled = params.get('cancelled')
+    if (!paidId && !cancelled) return
+
+    window.history.replaceState({}, '', window.location.pathname)
+    setTab('bookings')
+
+    if (cancelled) {
+      setPayNotice('Payment was cancelled. You have not been charged.')
+      return
+    }
+
+    setPayNotice('Checking your payment…')
+    verifyPayment(paidId)
+      .then((payment) => {
+        setPayNotice(
+          payment.status === 'Paid'
+            ? 'Payment received. Thank you! You can open your receipt below.'
+            : 'We have not received the payment yet. If you already paid, refresh this page in a minute.',
+        )
+      })
+      .catch((error) => setPayNotice(error.message))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const submitReview = async (booking, rating, comment) => {
+    try {
+      await addReview({
+        id: 'RV-' + Date.now().toString().slice(-6),
+        bookingId: booking.id,
+        rating,
+        comment,
+        date: new Date().toISOString(),
+      })
+      updateBooking(booking.id, { reviewed: true })
+      closeModal()
+    } catch (error) {
+      window.alert(error.message)
+    }
   }
 
   const requestExtension = (booking, newEnd, additional) => {
@@ -294,6 +337,8 @@ const saveProfile = async () => {
                   </button>
                 ))}
               </div>
+
+              {payNotice && <div className="ac-card" role="status">{payNotice}</div>}
 
               {shown.length === 0 && <div className="ac-card ac-empty">No bookings here yet.</div>}
 

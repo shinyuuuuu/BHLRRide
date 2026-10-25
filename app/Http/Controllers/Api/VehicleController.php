@@ -9,6 +9,7 @@ use App\Models\VehicleType;
 use App\Models\Vendor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class VehicleController extends Controller
 {
@@ -29,10 +30,17 @@ class VehicleController extends Controller
     {
         $viewer = $request->user();
 
+        // average star rating per vehicle, from reviews of its bookings
+        $ratings = DB::table('reviews')
+            ->join('bookings', 'reviews.booking_id', '=', 'bookings.id')
+            ->selectRaw('bookings.vehicle_id as vehicle_id, avg(reviews.rating) as average')
+            ->groupBy('bookings.vehicle_id')
+            ->pluck('average', 'vehicle_id');
+
         $vehicles = Vehicle::with(['branch.vendor'])
             ->orderBy('id')
             ->get()
-            ->map(fn (Vehicle $v) => $this->shape($v, $viewer));
+            ->map(fn (Vehicle $v) => $this->shape($v, $viewer, (float) ($ratings[$v->id] ?? 0)));
 
         return response()->json(['vehicles' => $vehicles]);
     }
@@ -176,14 +184,13 @@ class VehicleController extends Controller
             || $vehicle->branch?->vendor?->account_id === $account->id;
     }
 
-    private function shape(Vehicle $v, $viewer = null): array
+    private function shape(Vehicle $v, $viewer = null, float $rating = 0): array
     {
-        $isOwner = $viewer && ($viewer->role === 'admin' || $v->branch?->vendor?->account_id === $viewer->id);
-
-        $out = [
+        return [
             'id'           => $v->id,
             'brand'        => $v->brand,
             'model'        => $v->model,
+            'plateNumber'  => $v->plate_number ?? '',
             'shop'         => $v->branch?->vendor?->business_name ?? '',
             'branch'       => $v->branch?->branch_name ?? '',
             'kind'         => $v->kind,
@@ -192,19 +199,13 @@ class VehicleController extends Controller
             'seats'        => (int) $v->seats,
             'fuel'         => $v->fuel ?? '',
             'rate'         => (float) $v->rental_rate,
-            'rating'       => 0, // real ratings come with the reviews step
+            'rating'       => round($rating, 1),
             'badge'        => $v->badge ?? '',
             'available'    => $v->status === 'available',
             'status'       => self::STATUS_LABEL[$v->status] ?? 'Rented',
             'image'        => $v->image ?? '',
             'emoji'        => $this->emoji($v),
         ];
-
-        if ($isOwner) {
-            $out['plateNumber'] = $v->plate_number ?? '';
-        }
-
-        return $out;
     }
 
     private function emoji(Vehicle $v): string

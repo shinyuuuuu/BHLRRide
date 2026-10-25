@@ -18,6 +18,16 @@ return [
         'key' => env('POSTMARK_API_KEY'),
     ],
 
+    'paymongo' => [
+        'secret'         => env('PAYMONGO_SECRET_KEY'),
+        'webhook_secret' => env('PAYMONGO_WEBHOOK_SECRET'),
+    ],
+
+    'semaphore' => [
+        'key'    => env('SEMAPHORE_API_KEY'),
+        'sender' => env('SEMAPHORE_SENDER'),
+    ],
+
     'resend' => [
         'key' => env('RESEND_API_KEY'),
     ],

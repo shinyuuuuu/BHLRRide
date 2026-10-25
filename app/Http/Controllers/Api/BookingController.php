@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Vehicle;
+use App\Services\Notifier;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -26,6 +27,7 @@ class BookingController extends Controller
             'end'        => Carbon::parse($b->end_date)->toDateString(),
             'status'     => ucfirst($b->booking_status),
             'total'      => (float) $b->total_amount,
+            'reviewed'   => isset($b->review_exists) ? (bool) $b->review_exists : $b->review()->exists(),
             'customer'   => $account ? trim($account->first_name.' '.$account->last_name) : '',
             'createdAt'  => optional($b->created_at)->toIso8601String(),
         ];
@@ -41,7 +43,7 @@ class BookingController extends Controller
     {
         $account = $request->user();
 
-        $query = Booking::with('account')->orderByDesc('id');
+        $query = Booking::with('account')->withExists('review')->orderByDesc('id');
 
         if ($account->role === 'admin') {
             // admins see everything
@@ -113,6 +115,7 @@ class BookingController extends Controller
         }
 
         $booking->load('account');
+        Notifier::bookingRequested($booking);
 
         return response()->json(['booking' => $this->shape($booking)], 201);
     }
@@ -153,6 +156,7 @@ class BookingController extends Controller
         }
 
         $booking->update(['booking_status' => $new]);
+        Notifier::bookingStatus($booking, $new);
 
         return response()->json(['booking' => $this->shape($booking)]);
     }

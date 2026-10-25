@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from './auth/auth.js'
 import { useVehicles } from './data/vehiclestore.js'
 import { useBookings, useAvailability } from './data/bookingstore.js'
-import { useReviews  } from './data/reviewstore.js'
+import { useVehicleReviews } from './data/reviewstore.js'
 import AvailabilityCalendar from './Availabilitycalendar.jsx'
 import './vehiclepage.css'
 
@@ -28,21 +28,11 @@ function VehiclePage() {
   const vehicle = vehicles.find((v) => v.id === Number(id))
   const { user } = useAuth()
   const navigate = useNavigate()
-  const { bookings, addBooking } = useBookings()
+  const { addBooking } = useBookings()
   const { taken, refresh } = useAvailability(vehicle?.id)
 
 
-  const { reviews } = useReviews()
-
-  const vehicleBookingIds = new Set(
-    bookings
-      .filter((booking) => booking.vehicleId === vehicle?.id)
-      .map((booking) => booking.id)
-  )
-
-  const vehicleReviews = reviews.filter((review) =>
-    vehicleBookingIds.has(review.bookingId)
-  )
+  const { reviews: vehicleReviews } = useVehicleReviews(vehicle?.id)
 
   const averageRating = vehicleReviews.length
     ? (
@@ -218,9 +208,7 @@ function VehiclePage() {
                         <div className="vp-review-avatar">✓</div>
 
                         <div className="vp-review-author">
-                          <strong>{bookings.find((booking) => booking.id === review.bookingId)?.customer ||
-                            'verified renter'}
-                            </strong>
+                          <strong>{review.customer || 'Verified renter'}</strong>
                           <span>
                             {review.date
                               ? new Date(review.date).toLocaleDateString('en-PH', {

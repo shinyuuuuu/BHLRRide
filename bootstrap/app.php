@@ -13,6 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
 
+        // PayMongo calls this address itself, so it cannot carry our CSRF token
+        $middleware->validateCsrfTokens(except: ['api/webhooks/*']);
+
         $middleware->alias([
             'role' => \App\Http\Middleware\RequireRole::class,
         ]);
