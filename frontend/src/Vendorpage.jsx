@@ -6,6 +6,11 @@ import { useBookings } from "./data/bookingstore.js"
 import { useConditionLogs } from './data/conditionstore.js'
 import './Vendorpage.css'
 
+// Vehicle photos are uploaded to Cloudinary (free image hosting), which gives back a web link.
+// Cloud name (dashboard) and an UNSIGNED upload preset.
+const CLOUDINARY_CLOUD_NAME = 'lbcenmph'
+const CLOUDINARY_UPLOAD_PRESET = 'bhlrride_vehicles'
+
 const peso = (n) => '₱' + Number(n).toLocaleString('en-PH')
 
 const daysBetween = (a, b) =>
@@ -117,6 +122,38 @@ function VendorPage() {
                     .reduce((sum, b) => sum + total(b), 0)
 
     const set = (field) => (e) => setForm({... form, [field]: e.target.value })
+
+    // PHOTO UPLOAD (Cloudinary)
+    const [uploading, setUploading] = useState(false)
+
+    const uploadPhoto = async (e) => {
+        const file = e.target.files?.[0]
+        e.target.value = '' // lets the same file be picked again
+        if (!file) return
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type))
+            return setFormError('Please choose a JPG, PNG or WEBP photo.')
+        if (file.size > 5 * 1024 * 1024)
+            return setFormError('That photo is too big. Please choose one under 5 MB.')
+
+        setUploading(true)
+        setFormError('')
+        try {
+            const data = new FormData()
+            data.append('file', file)
+            data.append('upload_preset', CLOUDINARY_UPLOAD_PRESET)
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+                method: 'POST',
+                body: data,
+            })
+            const json = await res.json()
+            if (!res.ok) throw new Error(json.error?.message || 'Please try again.')
+            setForm((f) => ({ ...f, image: json.secure_url }))
+        } catch (err) {
+            setFormError('Photo upload failed: ' + err.message)
+        } finally {
+            setUploading(false)
+        }
+    }
     const setLog = (field) => (e) => setLogForm({... logForm, [field]: e.target.value})
 
 
@@ -485,13 +522,22 @@ function VendorPage() {
                     </select>
                   </label>
                   <label className="full">
-                    Photo path
-                    <input value={form.image} onChange={set('image')} placeholder="/images/toyotaVios.jpg" />
-                    <small>Put the photo in public/images, then type its path here.</small>
+                    Photo
+                    <input type="file" accept="image/jpeg,image/png,image/webp" onChange={uploadPhoto} disabled={uploading} />
+                    <small>{uploading ? 'Uploading photo…' : 'Choose a photo from your device (JPG, PNG or WEBP, up to 5 MB).'}</small>
                   </label>
+                  {form.image && (
+                    <div className="full">
+                      <img
+                        src={form.image}
+                        alt="Vehicle photo preview"
+                        style={{ width: 160, height: 110, objectFit: 'cover', borderRadius: 12, display: 'block' }}
+                      />
+                    </div>
+                  )}
  
                   <div className="vd-form-actions full">
-                    <button className="vd-btn" type="submit">Save vehicle</button>
+                    <button className="vd-btn" type="submit" disabled={uploading}>{uploading ? 'Uploading…' : 'Save vehicle'}</button>
                     <button className="vd-btn ghost" type="button" onClick={() => setEditing(null)}>Cancel</button>
                   </div>
                 </form>
