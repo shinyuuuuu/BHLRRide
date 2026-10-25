@@ -105,6 +105,9 @@ function VendorHelp() {
               contact your BHLRRide administrator or support contact.
             </p>
           </div>
+            <div className="vh-contact-note">
+            <p><strong>Hours:</strong> Mon–Sat, 8:00 AM – 5:00 PM</p>
+          </div>
         </section>
 
         <div className="vh-footer">
