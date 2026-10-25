@@ -346,6 +346,7 @@ const saveProfile = async () => {
 
               {shown.map((b) => {
                 const v = findVehicle(b.vehicleId)
+                if (!v) return null
                 const days = daysBetween(b.start, b.end)
                 const payment = paymentOf(b.id)
                 const ext = b.extension
