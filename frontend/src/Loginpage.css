@@ -1,0 +1,274 @@
+.lg {
+  --burgundy: #5a1828;
+  --gold: #d5b46a;
+  --cream: #f7f3eb;
+  --charcoal: #202124;
+  --gray: #6f7074;
+  --line: #e6e1d6;
+
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  color: var(--charcoal);
+}
+
+.lg *,
+.lg *::before,
+.lg *::after {
+  box-sizing: border-box;
+}
+
+.lg a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.lg button,
+.lg input {
+  font: inherit;
+}
+
+.lg :focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* LEFT PANEL */
+.lg-panel {
+  padding: 36px 8%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #fff;
+  position: sticky;
+  top: 0; 
+  height: 100vh;
+  align-self: start;
+  background:
+    linear-gradient(180deg, #20212499 0%, #202124d9 100%),
+    url('/images/river.jpg') center / cover no-repeat,
+    linear-gradient(160deg, #202124 0%, #3a1a22 100%);
+}
+
+.lg-brand {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+}
+
+.lg-brand span {
+  color: var(--gold);
+}
+
+.lg-hero {
+  max-width: 440px;
+  padding-bottom: 40px;
+}
+
+.lg-eyebrow {
+  margin: 0 0 14px;
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+}
+
+.lg-hero h1 {
+  margin: 0 0 16px;
+  font-size: clamp(36px, 4.5vw, 56px);
+  font-weight: 800;
+  letter-spacing: -2px;
+  line-height: 1.05;
+}
+
+.lg-hero em {
+  font-style: normal;
+  color: var(--gold);
+}
+
+.lg-hero p:last-child {
+  margin: 0;
+  color: #d8d4d0;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* RIGHT SIDE */
+.lg-side {
+  padding: 28px 8%;
+  display: flex;
+  flex-direction: column;
+  background: var(--cream);
+}
+
+.lg-back {
+  align-self: flex-end;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--burgundy);
+}
+
+.lg-form {
+  width: 100%;
+  max-width: 420px;
+  margin: auto;
+  display: grid;
+  gap: 16px;
+}
+
+.lg-form h2 {
+  margin: 0;
+  font-size: 32px;
+  letter-spacing: -1px;
+}
+
+.lg-sub {
+  margin: -8px 0 4px;
+  color: var(--gray);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.lg-form label {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.lg-form input {
+  width: 100%;
+  height: 46px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--charcoal);
+}
+
+.lg-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.lg-pass {
+  position: relative;
+  display: block;
+}
+
+.lg-pass input {
+  padding-right: 60px;
+}
+
+.lg-pass button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 46px;
+  padding: 0 14px;
+  border: none;
+  background: none;
+  color: var(--burgundy);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lg-error {
+  padding: 11px 14px;
+  border: 1px solid #e3b5b5;
+  border-radius: 8px;
+  background: #faeeee;
+  color: #a33a3a;
+  font-size: 13px;
+}
+
+.lg-submit {
+  height: 48px;
+  border: none;
+  border-radius: 8px;
+  background: var(--burgundy);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.lg-submit:hover {
+  background: #451320;
+}
+
+.lg-switch {
+  margin: 0;
+  text-align: center;
+  color: var(--gray);
+  font-size: 14px;
+  padding: 1px;
+}
+
+.lg-switch button {
+  border: none;
+  background: none;
+  color: var(--burgundy);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lg-demo {
+  display: grid;
+  gap: 3px;
+  padding: 12px 14px;
+  border: 1px dashed #cfc5ad;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--gray);
+  font-size: 12px;
+}
+
+.lg-demo strong {
+  color: var(--charcoal);
+}
+
+.lg-foot {
+  margin: 0;
+  text-align: center;
+  color: var(--gray);
+  font-size: 12px;
+  padding-top: 14px;
+}
+
+@media (max-width: 800px) {
+  .lg {
+    grid-template-columns: 1fr;
+  }
+
+  .lg-panel {
+    position: static;
+    height: auto;
+  }
+
+  .lg-hero {
+    display: none;
+  }
+
+  .lg-side {
+    padding: 24px 6% 32px;
+  }
+}
+
+.lg-switch a {
+  color: var(--burgundy);
+  font-weight: 700;
+}
+
+.lg-field-error {
+  color: #d32f2f;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.lg-form input[aria-invalid='true'] {
+  border-color: #d32f2f;
+}

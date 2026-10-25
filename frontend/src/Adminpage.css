@@ -1,0 +1,331 @@
+
+/* ========================================
+   BHLRRIDE — ADMIN DASHBOARD POLISH
+   Uses existing Vendorpage.css design tokens.
+   No JSX or functionality changes.
+======================================== */
+
+/* TABLES */
+.ad-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+  color: var(--charcoal);
+}
+
+.ad-table th {
+  padding: 13px 14px;
+  text-align: left;
+  color: var(--gray);
+  background: #faf8f3;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.055em;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.ad-table td {
+  padding: 14px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+  transition: background 0.18s ease;
+}
+
+.ad-table tbody tr:hover td {
+  background: #fcfaf5;
+}
+
+.ad-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.ad-table .num {
+  text-align: right;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.ad-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold) #f5f1e9;
+}
+
+.ad-scroll .ad-table {
+  min-width: 760px;
+}
+
+.ad-scroll .ad-table th:first-child {
+  border-top-left-radius: 11px;
+}
+
+.ad-scroll .ad-table th:last-child {
+  border-top-right-radius: 11px;
+}
+
+.ad-foot {
+  margin: 14px 2px 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* REPORT BAR CHART */
+.ad-bar-row {
+  display: grid;
+  grid-template-columns: minmax(130px, 170px) minmax(80px, 1fr) 30px;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  font-size: 13px;
+}
+
+.ad-bar-row + .ad-bar-row {
+  border-top: 1px solid #f0ece4;
+}
+
+.ad-bar-row > span {
+  color: var(--charcoal);
+  font-weight: 500;
+}
+
+.ad-bar-row > strong {
+  text-align: right;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ad-bar {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #eee8dc;
+}
+
+.ad-bar i {
+  display: block;
+  height: 100%;
+  min-width: 3px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--burgundy), #87384b);
+  transition: width 0.35s ease;
+}
+
+/* VENDOR APPROVAL CARDS */
+.ad-vendor {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 14px;
+  padding: 22px 24px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--gold);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgb(32 33 36 / 3%);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.ad-vendor:hover {
+  box-shadow: 0 7px 20px rgb(32 33 36 / 7%);
+  transform: translateY(-1px);
+}
+
+.ad-vendor .vd-row-info {
+  min-width: 0;
+}
+
+.ad-vendor .vd-row-info h3 {
+  margin: 0;
+  color: var(--charcoal);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.ad-vendor .vd-row-info p {
+  margin: 8px 0 0;
+  color: var(--gray);
+  font-size: 12px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.ad-vendor .vd-top {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ad-vendor .vd-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 9px;
+}
+
+/* FILTERS */
+.ad-filters {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.ad-select {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--gray);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ad-select select {
+  min-width: 150px;
+  padding: 10px 34px 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #fff;
+  color: var(--charcoal);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ad-select select:hover {
+  border-color: var(--gold);
+}
+
+.ad-select select:focus-visible {
+  outline: none;
+  border-color: var(--burgundy);
+  box-shadow: 0 0 0 3px rgb(90 24 40 / 9%);
+}
+
+/* PENALTY RULE FORMS */
+.ad-rule {
+  display: grid;
+  grid-template-columns: minmax(180px, 2fr) repeat(3, minmax(110px, 1fr)) auto;
+  gap: 16px;
+  align-items: end;
+  margin-bottom: 14px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgb(32 33 36 / 3%);
+}
+
+.ad-rule label {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+  color: var(--gray);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+}
+
+.ad-rule input,
+.ad-rule select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--charcoal);
+  font: inherit;
+  font-size: 13px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ad-rule input:hover,
+.ad-rule select:hover {
+  border-color: #c9b98f;
+}
+
+.ad-rule input:focus-visible,
+.ad-rule select:focus-visible {
+  outline: none;
+  border-color: var(--burgundy);
+  box-shadow: 0 0 0 3px rgb(90 24 40 / 8%);
+}
+
+/* ADMIN BUTTON INTERACTIONS */
+.vd .vd-main .ad-vendor .vd-btn,
+.vd .vd-main .vd-head .vd-btn {
+  transition: background 0.2s ease, color 0.2s ease,
+    border-color 0.2s ease, transform 0.2s ease;
+}
+
+.vd .vd-main .ad-vendor .vd-btn:hover,
+.vd .vd-main .vd-head .vd-btn:hover {
+  transform: translateY(-1px);
+}
+
+.vd .vd-main .ad-vendor .vd-btn:focus-visible,
+.vd .vd-main .vd-head .vd-btn:focus-visible,
+.vd .vd-main .vd-chips button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* DESKTOP LAYOUT GUARD */
+.vd .vd-main {
+  min-width: 0;
+}
+
+.vd .vd-main section > .vd-card {
+  margin-bottom: 18px;
+}
+
+.vd .vd-main section > .vd-head {
+  margin-bottom: 22px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ad-table td,
+  .ad-bar i,
+  .ad-vendor,
+  .ad-select select,
+  .ad-rule input,
+  .ad-rule select {
+    transition: none;
+  }
+
+  .ad-vendor:hover,
+  .vd .vd-main .ad-vendor .vd-btn:hover,
+  .vd .vd-main .vd-head .vd-btn:hover {
+    transform: none;
+  }
+}
+
+/* Align the Admin badge with the brand text */
+.vd .vd-nav .vd-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1;
+}
+
+.vd .vd-nav .vd-brand small {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  padding: 6px 12px;
+  line-height: 1;
+  vertical-align: middle;
+}

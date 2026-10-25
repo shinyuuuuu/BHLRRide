@@ -1,0 +1,54 @@
+/* extras for the vendor sign-up page (the rest comes from the loginpage.css*/
+
+.lg-group {
+  margin: 10px 0 -4px;
+  color: #5a1828;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.lg-form select {
+  width: 100%;
+  height: 46px;
+  padding: 0 10px;
+  border: 1px solid #e6e1d6;
+  border-radius: 8px;
+  background: #fff;
+  color: #202124;
+}
+
+.lg-form input:disabled {
+  background: #f7f3eb;
+  color: #555;
+}
+
+.lg-switch a {
+  color: #5a1828;
+  font-weight: 700;
+}
+
+.vs-done {
+  text-align: center;
+  justify-items: center;
+}
+
+.vs-check {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #e3f3e9;
+  color: #2f7a4d;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.vs-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  color: #fff !important;
+}
