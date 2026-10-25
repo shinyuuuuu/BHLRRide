@@ -105,9 +105,6 @@ function VendorHelp() {
               contact your BHLRRide administrator or support contact.
             </p>
           </div>
-          <span className="vh-contact-note">
-            Support contact details can be added here later. {/* DEMO ONLY. SUBJECT TO BE CHANGED. */}
-          </span>
         </section>
 
         <div className="vh-footer">
