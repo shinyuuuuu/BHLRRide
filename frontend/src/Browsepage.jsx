@@ -7,6 +7,16 @@ import './Browsepage.css'
 
 const peso = (n) => '₱' + n.toLocaleString('en-PH')
 
+// Dates as 'YYYY-MM-DD' in the visitor's own timezone
+const toDateStr = (d) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+const todayStr = () => toDateStr(new Date())
+const addDays = (dateStr, n) => {
+  const d = new Date(dateStr + 'T00:00:00')
+  d.setDate(d.getDate() + n)
+  return toDateStr(d)
+}
+
 const heroSlides = [
   {
     image: '/images/roadbohol.jpg',
@@ -39,7 +49,10 @@ function BrowsePage() {
   const [maxRate, setMaxRate] = useState(4000)
   const [transmissions, setTransmissions] = useState([])
   const [onlyAvailable, setOnlyAvailable] = useState(true)
-  const [days, setDays] = useState(3)
+  const [pickup, setPickup] = useState(() => todayStr())
+  const [returnDate, setReturnDate] = useState(() => addDays(todayStr(), 3))
+  const [dateError, setDateError] = useState('')
+  const days = Math.max(1, Math.round((new Date(returnDate) - new Date(pickup)) / 86400000))
 
   const toggle = (list, setList, value) =>
     setList(list.includes(value) ? list.filter((v) => v !== value) : [...list, value])
@@ -243,22 +256,54 @@ const [heroIndex, setHeroIndex] = useState(0)
         </label>
         <label>
           Pickup date
-          <input type="date" defaultValue="2026-10-16" />
+          <input
+            type="date"
+            value={pickup}
+            min={todayStr()}
+            onChange={(e) => {
+              const value = e.target.value
+              if (!value) return
+              if (value < todayStr()) {
+                setDateError('Pick-up date cannot be in the past.')
+                return
+              }
+              setDateError('')
+              setPickup(value)
+              // keep the return date valid when the pick-up date moves past it
+              if (returnDate < value) setReturnDate(addDays(value, 1))
+            }}
+          />
         </label>
         <label>
           Return date
           <input
             type="date"
-            defaultValue="2026-10-19"
+            value={returnDate}
+            min={pickup}
             onChange={(e) => {
-              const start = new Date('2026-10-16')
-              const diff = Math.round((new Date(e.target.value) - start) / 86400000)
-              if (diff > 0) setDays(diff)
+              const value = e.target.value
+              if (!value) return
+              if (value < pickup) {
+                setDateError('Return date must be on or after the pick-up date.')
+                return
+              }
+              setDateError('')
+              setReturnDate(value)
             }}
           />
         </label>
-        <button className="bp-btn">Find my ride</button>
+        <button
+          className="bp-btn"
+          onClick={() => document.getElementById('fleet')?.scrollIntoView({ behavior: 'smooth' })}
+        >
+          Find my ride
+        </button>
       </section>
+      {dateError && (
+        <p role="alert" style={{ color: '#b42318', fontWeight: 600, textAlign: 'center', margin: '12px 16px 0' }}>
+          {dateError}
+        </p>
+      )}
 
       <div className="bp-body" id="fleet">
         <aside className="bp-filters">
